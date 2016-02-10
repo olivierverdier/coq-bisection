@@ -293,11 +293,17 @@ Proof.
   assert (H_ad: isAdmissible f (sequence f d n)). apply allAdmissible. apply H.
   destruct (sequence f d n). destruct H_ad as [H_le Hf]. apply Hf.
 Qed. 
+
+Lemma rgt_fpos: forall f d, (isAdmissible f d) -> forall n, 0 <= f (rgt (sequence f d n)).
+Proof.
+  intros.
+  assert (H_ad: isAdmissible f (sequence f d n)). apply allAdmissible. apply H.
+  destruct (sequence f d n). destruct H_ad as [H_le H_f]. apply H_f.
+Qed.
   
 (*
 Remains to be done: 
   - The right part converges (using the Lemma half), and has the same limit l as the left sides
-  - Show rgt_pos, that is, f is nonnegative on the right side
   - Assume f continuous, and show that f(l) <= 0, f(l) >= 0, so f(l) = 0.
   - Extract the bisection algorithm to Haskell
 *)
