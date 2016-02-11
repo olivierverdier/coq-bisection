@@ -36,71 +36,37 @@ Print bisect.
 (* The bisection step leaves the following property invariant *)
 
 Definition isAdmissible (f: R -> R) (d: BisectData) : Prop :=
-  match d with
-    | mkBisectData a b => (a <= b) /\ (f a <= 0) /\ (0 <= f(b))
-     end.
+  let a := lft d in
+  let b := rgt d in 
+ (a <= b) /\ (f a <= 0) /\ (0 <= f(b)).
 
-
-Definition width (d: BisectData) : R :=
-  match d with
-    | mkBisectData a b => b - a
-end.
+Definition width (d: BisectData) : R := (rgt d) - (lft d).
 
 
 (* Main Lemma: forall a b: R, (a <= b) -> a <= mid a b <= b. *)
 
 (* we need some preliminary results first *)
 
-
-Lemma one_half: 0 <= (/2).
-Proof.
-  apply Rlt_le.
-  refine (Rinv_0_lt_compat _ _).
-  omega_sup.
-Qed.
-
 Lemma compat_mid_le : forall a b c d : R, a + b <= c + d -> mid a b <= mid c d.
 Proof.
-  intros.
-  unfold mid.
-  assert (mul_half: (a+b)*(/2) <= (c+d)*(/2)). apply Rmult_le_compat_r. apply one_half.  
-  apply H.
-  assert (div_two_mul_half: forall x: R, x / 2 = x * (/2)). intros. field_simplify. reflexivity.
-  assert (rwab: (a+b)/2 = (a+b)*(/2)). apply div_two_mul_half.
-  assert (rwcd: (c+d)/2 = (c+d)*(/2)). apply div_two_mul_half.
-  rewrite rwab. rewrite rwcd. apply mul_half.
+  intros. 
+  unfold mid. apply Rmult_le_compat_r. auto with real. exact H.
 Qed.
-
-
-
   
 Lemma mid_mid': forall a b: R, (a <= b) -> mid a a <= mid a b <= mid b b.
 Proof.
   intros a b a_le_b.
-  split.
-  *
-    apply compat_mid_le. refine (Rplus_le_compat_l _ _ _ _). apply a_le_b.
-  *
-    apply compat_mid_le. refine (Rplus_le_compat_r _ _ _ _). apply a_le_b.
+  split; apply compat_mid_le; auto with real.
 Qed.
 
 Lemma mid_xx : forall a: R, mid a a = a.
 Proof.
-  intros. unfold mid. field_simplify. field_simplify. reflexivity.
+  intros. unfold mid. rewrite Rdiv_plus_distr; rewrite double_var; reflexivity.
 Qed.
 
 Lemma mid_mid: forall a b: R, (a <= b) -> a <= mid a b <= b.
 Proof.
-  intros a b a_le_b.
-  split.
-  *
-    assert (rw: mid a a = a). apply mid_xx.
-    assert (H: mid a a <= mid a b). apply mid_mid'. apply a_le_b.
-    rewrite rw in H. apply H.
-  *
-    assert (rw: mid b b = b). apply mid_xx.
-    assert (H: mid a b <= mid b b). apply mid_mid'. apply a_le_b.
-    rewrite rw in H. apply H.
+  intros a b H. apply mid_mid' in H; repeat rewrite mid_xx in H. exact H.
 Qed.
    
 (* Main Theorem: properties of one step of bisection
@@ -141,7 +107,7 @@ Proof.
         + (* mid a b <= b /\ f (mid a b) <= 0 <= f b *)
          split.
          (* half *)
-         unfold mid. field_simplify. reflexivity.
+         unfold mid. unfold width. simpl. field_simplify. reflexivity.
          split.
          (* mid a b <= b *)
            apply mid_mid. apply a_le_b.
@@ -165,29 +131,26 @@ Proof.
 
     split.
 
-    simpl. unfold mid. field_simplify. reflexivity.
+    simpl. unfold mid. unfold width. simpl. field_simplify. reflexivity.
 
     unfold isAdmissible. split.
 
     apply mid_mid. apply a_le_b.
-
+    
     split. apply Hfa. apply Rlt_le. apply fpos.
 Qed.
 
 (* The left side is bounded by the previous right side
  it is used to get a global bound for the left sides *)
 
+Ltac ov := try apply main; eassumption.
+
 Lemma lftBound: forall d f, (isAdmissible f d) -> lft (bisect f d) <= rgt d.
 Proof.
   intros.
-  assert (d'_ad: isAdmissible f (bisect f d)). apply main. apply H.
-  assert (a_le_a': lft d <= lft (bisect f d)). apply main. apply H.
-  assert (b'_le_b: rgt (bisect f d) <= rgt d). apply main. apply H.
-  assert (a'_le_b': lft (bisect f d) <= rgt(bisect f d)). destruct (bisect f d) as [a' b'] eqn:eqd'. destruct d'_ad as [a'_le_b' Hf].
-  simpl. apply a'_le_b'.
-  apply Rle_trans with (r2:=rgt(bisect f d)). apply a'_le_b'. apply b'_le_b.
-  Qed.
-
+  apply main with (d:=d) (f:=f) in H.  
+  apply Rle_trans with (r2:=rgt(bisect f d)); apply H.
+Qed.
   
 
 (* Define the actual sequence of iterated applications of bisect *)
@@ -208,11 +171,19 @@ Lemma allAdmissible: forall d f, (isAdmissible f d) -> forall n, isAdmissible f 
 Proof.
   intros.
   induction n.
-  *
-    simpl. apply H.
-  *
-    simpl. apply main. apply IHn.
+  * apply H.
+  * ov.
 Qed.
+
+(* Not powerful enough yet; we want a tactic which does
+      apply main; apply allAdmissible?
+*)
+Hint Resolve allAdmissible.
+Hint Resolve main.
+
+Print Hint *.
+(* Change Ltac ov to apply main. apply allAdmissible? Or use match goal...? *)
+Ltac ov ::= try apply main; try apply allAdmissible; eassumption.
 
 (* the left sides make an increasing sequence *)
 
@@ -221,7 +192,7 @@ Proof.
   intros.
   unfold Un_growing.
   intros.
-  unfold lfts. simpl. apply main. apply allAdmissible. apply H.
+  unfold lfts. ov.
 Qed.
 
 (* the right sides have a common bound *)
@@ -233,9 +204,9 @@ Proof.
   *
     simpl. apply Rle_refl.
   *
-    simpl.
+    simpl.    
     assert (Hi: rgt  (bisect f (sequence f d n')) <= rgt  (sequence f d n')).
-    apply main. apply allAdmissible. apply H.
+    ov.
     apply Rle_trans with (r2:= rgt  (sequence f d n')). apply Hi. apply IHn'.
 Qed.
 
@@ -243,9 +214,7 @@ Qed.
 
 Lemma lft_rgt: forall f d, (isAdmissible f d) -> forall n, lft (sequence f d n) <= rgt (sequence f d n).
 Proof.
-  intros.
-  assert (H_ad:isAdmissible f (sequence f d n)). apply allAdmissible. apply H.
-  destruct (sequence f d n) as [a b]. destruct H_ad as [H_le Hf]. apply H_le.
+  intros. apply allAdmissible with (n:=n) in H. apply H.
 Qed.
 
 (* common bound for the left sides *)
@@ -285,16 +254,12 @@ Qed.
 
 Lemma lft_fneg: forall f d, (isAdmissible f d) -> forall n, f (lft (sequence f d n)) <= 0.
 Proof.
-  intros.
-  assert (H_ad: isAdmissible f (sequence f d n)). apply allAdmissible. apply H.
-  destruct (sequence f d n). destruct H_ad as [H_le Hf]. apply Hf.
+  intros. apply allAdmissible with (n:=n) in H. apply H.
 Qed. 
 
 Lemma rgt_fpos: forall f d, (isAdmissible f d) -> forall n, 0 <= f (rgt (sequence f d n)).
 Proof.
-  intros.
-  assert (H_ad: isAdmissible f (sequence f d n)). apply allAdmissible. apply H.
-  destruct (sequence f d n). destruct H_ad as [H_le H_f]. apply H_f.
+  intros. apply allAdmissible with (n:=n) in H. apply H.
 Qed.
   
 (*
