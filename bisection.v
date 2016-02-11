@@ -54,13 +54,9 @@ end.
 
 Lemma one_half: 0 <= (/2).
 Proof.
-  assert (two_ge_0: 0 < INR 2).
-  apply lt_0_INR.
-  auto.
-  assert (two_two: INR 2 = 2). simpl. reflexivity.
-  assert (two_gt_0: 0 < 2). rewrite <- two_two. apply two_ge_0.
-  assert (half_gt_0: 0 < /2). refine (Rinv_0_lt_compat _ _). apply two_gt_0.
-  apply Rlt_le. apply half_gt_0.
+  apply Rlt_le.
+  refine (Rinv_0_lt_compat _ _).
+  omega_sup.
 Qed.
 
 Lemma compat_mid_le : forall a b c d : R, a + b <= c + d -> mid a b <= mid c d.
