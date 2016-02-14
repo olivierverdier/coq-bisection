@@ -377,22 +377,29 @@ Proof.
   apply Hcv.
 Qed.
 
-(* the following should be part of some standard library,
-but I could not find it *)
 
 Lemma f_cont_le: forall f u l,
                       (continuity_pt f l) ->
                       (Un_cv u l) ->
                       (forall n, f(u n) <= 0) ->
                       f l <= 0.
-Admitted.
+Proof.
+  intros f u l Hcont Hcv Hle.
+  apply Rle_cv_lim with (fun n => f (u n)) (fun n => 0).
+  apply Hle. apply continuity_seq. apply Hcont. apply Hcv. apply const_cv. 
+Qed.
+  
 
 Lemma f_cont_ge: forall f u l,
                       (continuity_pt f l) ->
                       (Un_cv u l) ->
                       (forall n, 0 <= f(u n)) ->
                       0 <= f l.
-Admitted.
+Proof.
+  intros f u l Hcont Hcv Hle.
+  apply Rle_cv_lim with (fun n => 0) (fun n => f (u n)).
+  apply Hle. apply const_cv. apply continuity_seq. apply Hcont. apply Hcv.
+Qed.
 
 
 Theorem Final: forall f d,
@@ -429,6 +436,5 @@ Qed.
   
 (*
 Remains to be done: 
-  - Proof of the admitted results above
   - Extract the bisection algorithm to Haskell
 *)
