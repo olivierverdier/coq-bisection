@@ -289,10 +289,12 @@ Proof.
   unfold width.
   induction n as [|n'].
   simpl.  assert (Hhp0: half_power 0 = 1). unfold half_power. auto with real. rewrite Hhp0. auto with real.
-  simpl. assert (Hadn: isAdmissible f (sequence f d n')). apply allAdmissible. apply H.
-  apply main in Hadn. destruct Hadn as [Hl [Hr [Hw Hd]]].  unfold width in Hw. rewrite IHn' in Hw. rewrite Hw.
-  assert (Hhp: (rgt d - lft d) * (half_power n' / 2) = ((rgt d - lft d) * (half_power (S n')))).
-  rewrite hp. reflexivity.
+  *
+    simpl.
+    assert (Hadn: isAdmissible f (sequence f d n')). apply allAdmissible; auto.
+    apply main in Hadn as [Hl [Hr [Hw Hd]]]. unfold width in Hw. 
+    rewrite IHn' in Hw. rewrite Hw.
+  assert (Hhp: (rgt d - lft d) * (half_power n' / 2) = ((rgt d - lft d) * (half_power (S n')))). rewrite hp. reflexivity.
   assert (Hass: (rgt d - lft d) * half_power n' / 2 = (rgt d - lft d) * (half_power n' / 2)). field.
   rewrite Hass. 
   rewrite Hhp. reflexivity.
@@ -306,9 +308,7 @@ Lemma width_cv_0: forall f d, (isAdmissible f d) ->
                          Un_cv (fun n => width (sequence f d n)) 0.
 Proof.
   intros.
-  assert (Hwh: forall n, (width d) * half_power n = width (sequence f d n)).
-  symmetry.
-  apply width_half_power. apply H.
+  assert (Hwh: forall n, (width d) * half_power n = width (sequence f d n)). symmetry. apply width_half_power. apply H.
   pose (Hp0:= cv_pow_half (width d)).
   pose (ext:= Un_cv_ext (fun n => (width d) * half_power n) (fun n => width (sequence f d n)) Hwh 0 Hp0).
   apply ext.
@@ -330,16 +330,12 @@ Proof.
   assumption.
   *
   unfold rgts.
-  assert (Hwidth: forall x, rgt x = lft x + width x).
-  intros.
-  unfold width. auto with real.
-  assert (Hw: forall n,  lft (sequence f d n) + width (sequence f d n) = rgt (sequence f d n)).
-  intros. symmetry. apply Hwidth.
+  assert (Hwidth: forall x, rgt x = lft x + width x). intros. unfold width. auto with real.
+  assert (Hw: forall n,  lft (sequence f d n) + width (sequence f d n) = rgt (sequence f d n)). intros. symmetry. apply Hwidth.
   assert (Un_cv (fun n:nat => lft (sequence f d n) + width (sequence f d n)) lim).
   pose (Hw0:= width_cv_0 f d H).
   pose (Hcv_plus:= CV_plus (lfts (sequence f d)) (fun n => width (sequence f d n)) lim 0 Hcv Hw0).
-  assert (lim0: lim = lim + 0).
-  auto with real.
+  assert (lim0: lim = lim + 0). auto with real.
   rewrite lim0.
   apply Hcv_plus.
   pose (Hext:=Un_cv_ext
