@@ -355,6 +355,7 @@ Proof.
   assert (H0: x - x = 0). field. rewrite H0.  rewrite Rabs_R0.  assumption.
 Qed.
 
+Hint Resolve continuity_seq const_cv : cont_const.
 
 Lemma f_cont_le: forall f u l,
                       (continuity_pt f l) ->
@@ -363,8 +364,7 @@ Lemma f_cont_le: forall f u l,
                       f l <= 0.
 Proof.
   intros f u l Hcont Hcv Hle.
-  apply Rle_cv_lim with (fun n => f (u n)) (fun n => 0).
-  apply Hle. apply continuity_seq. apply Hcont. apply Hcv. apply const_cv. 
+  apply Rle_cv_lim with (fun n => f (u n)) (fun n => 0); auto with cont_const.
 Qed.
   
 
@@ -375,8 +375,7 @@ Lemma f_cont_ge: forall f u l,
                       0 <= f l.
 Proof.
   intros f u l Hcont Hcv Hle.
-  apply Rle_cv_lim with (fun n => 0) (fun n => f (u n)).
-  apply Hle. apply const_cv. apply continuity_seq. apply Hcont. apply Hcv.
+  apply Rle_cv_lim with (fun n => 0) (fun n => f (u n)); auto with cont_const.
 Qed.
 
 
