@@ -288,6 +288,7 @@ Proof.
   intros.
   unfold width.
   induction n as [|n'].
+  *
   simpl.  assert (Hhp0: half_power 0 = 1). unfold half_power. auto with real. rewrite Hhp0. auto with real.
   *
     simpl.
