@@ -367,6 +367,15 @@ Qed.
 
 
   
+Lemma const_cv: forall x, Un_cv (fun n => x) x.
+Proof.
+  intros.
+  pose (Hcv := cv_pow_half 1).
+  pose (Hcs:=continuity_seq (fun y => x) (fun n => 1 / 2^n) 0).
+  apply Hcs.
+  apply continuity_const. unfold constant. intros. reflexivity.
+  apply Hcv.
+Qed.
 
 (* the following should be part of some standard library,
 but I could not find it *)
