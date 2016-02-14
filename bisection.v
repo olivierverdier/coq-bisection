@@ -388,22 +388,20 @@ Theorem Final: forall f d,
                      f(l) = 0.
 Proof.
   intros f d H Hcont.
-  pose (both_cv f d H).
-  destruct e as [lim [Hcvl Hcvr]].
+  destruct (both_cv f d H) as [lim [Hcvl Hcvr]].
 
   exists lim.
-  split.
-  exact Hcvl.
+  split; auto.
 
   assert (Hle0: f lim <= 0).
-  apply f_cont_le with (u := lfts (sequence f d)). apply Hcont. apply Hcvl. apply lft_fneg. apply H.
+  apply f_cont_le with (u := lfts (sequence f d)); auto.
+  apply lft_fneg; auto.
 
   assert (Hge0: 0 <= f lim).
-  apply f_cont_ge with (u := rgts (sequence f d)).
-  apply Hcont.
-  apply Hcvr.
-  apply rgt_fpos. apply H.
-  apply Rle_antisym. apply Hle0. apply Hge0.
+  apply f_cont_ge with (u := rgts (sequence f d)); auto.
+  apply rgt_fpos; auto.
+
+  apply Rle_antisym; auto.
 Qed.
   
 
