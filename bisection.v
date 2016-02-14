@@ -310,20 +310,19 @@ Proof.
 Qed.  
                
 
-Lemma half_power_cv_0: forall x, Un_cv (fun n:nat => x * half_power n) 0.
-Admitted.
 
-Require Export Coq.Logic.FunctionalExtensionality.
+
 
 Lemma width_cv_0: forall f d, (isAdmissible f d) ->
                          Un_cv (fun n => width (sequence f d n)) 0.
 Proof.
   intros.
-  assert ((fun n:nat => width (sequence f d n)) = (fun n:nat => (width d) * half_power n)).
-  apply functional_extensionality.
-  intros.
-  rewrite width_half_power. reflexivity. apply H. rewrite H0. 
-  apply half_power_cv_0.
+  assert (Hwh: forall n, (width d) * half_power n = width (sequence f d n)).
+  symmetry.
+  apply width_half_power. apply H.
+  pose (Hp0:= cv_pow_half (width d)).
+  pose (ext:= Un_cv_ext (fun n => (width d) * half_power n) (fun n => width (sequence f d n)) Hwh 0 Hp0).
+  apply ext.
 Qed.
 
 Lemma both_cv: forall f d,
