@@ -385,10 +385,6 @@ Lemma f_cont_ge: forall f u l,
 Admitted.
 
 
-Lemma le_eq: forall x:R, 0 <= x -> x <= 0 -> x = 0.
-Admitted.
-
-
 Theorem Final: forall f d,
                    (isAdmissible f d) ->
                    (continuity f) ->
@@ -397,7 +393,7 @@ Theorem Final: forall f d,
                      /\
                      f(l) = 0.
 Proof.
-  intros.
+  intros f d H Hcont.
   pose (both_cv f d H).
   destruct e as [lim [Hcvl Hcvr]].
 
@@ -405,17 +401,15 @@ Proof.
   split.
   exact Hcvl.
 
-  assert (f lim <= 0).
-  apply f_cont_le with (u := lfts (sequence f d)). apply H0. apply Hcvl. apply lft_fneg. apply H.
+  assert (Hle0: f lim <= 0).
+  apply f_cont_le with (u := lfts (sequence f d)). apply Hcont. apply Hcvl. apply lft_fneg. apply H.
 
-  assert (0 <= f lim).
+  assert (Hge0: 0 <= f lim).
   apply f_cont_ge with (u := rgts (sequence f d)).
-  apply H0.
+  apply Hcont.
   apply Hcvr.
   apply rgt_fpos. apply H.
-  apply le_eq.
-  apply H2.
-  apply H1.
+  apply Rle_antisym. apply Hle0. apply Hge0.
 Qed.
   
 
