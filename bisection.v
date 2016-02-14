@@ -297,8 +297,7 @@ Proof.
     rewrite IHn' in Hw. rewrite Hw.
   assert (Hhp: (rgt d - lft d) * (half_power n' / 2) = ((rgt d - lft d) * (half_power (S n')))). rewrite hp. reflexivity.
   assert (Hass: (rgt d - lft d) * half_power n' / 2 = (rgt d - lft d) * (half_power n' / 2)). field.
-  rewrite Hass. 
-  rewrite Hhp. reflexivity.
+  congruence.
 Qed.  
                
 
