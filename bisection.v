@@ -107,7 +107,7 @@ Proof.
         + (* mid a b <= b /\ f (mid a b) <= 0 <= f b *)
          split.
          (* half *)
-         unfold mid. unfold width. simpl. field_simplify. reflexivity.
+         unfold mid. unfold width. simpl. field.
          split.
          (* mid a b <= b *)
            apply mid_mid. apply a_le_b.
@@ -131,7 +131,7 @@ Proof.
 
     split.
 
-    simpl. unfold mid. unfold width. simpl. field_simplify. reflexivity.
+    simpl. unfold mid. unfold width. simpl. field.
 
     unfold isAdmissible. split.
 
@@ -272,12 +272,7 @@ Lemma hp: forall n, half_power n / 2 = half_power (S n).
 Proof.
   intros.
   unfold half_power.
-  simpl. field_simplify. reflexivity.
-
-  apply pow_nonzero.
-  assert (2 = INR 2).
-  auto with real.
-  rewrite H. auto with real.
+  simpl. field.
 
   apply pow_nonzero.
   assert (2 = INR 2).
@@ -285,12 +280,6 @@ Proof.
   rewrite H. auto with real.
 Qed.
 
-Lemma triv_associative: forall x y, x * y /2 = x * (y /2).
-Proof.
-  intros.
-  field_simplify.
-  reflexivity.
-Qed.
 
 Lemma width_half_power: forall f d,
                           (isAdmissible f d)
@@ -304,7 +293,7 @@ Proof.
   apply main in Hadn. destruct Hadn as [Hl [Hr [Hw Hd]]].  unfold width in Hw. rewrite IHn' in Hw. rewrite Hw.
   assert (Hhp: (rgt d - lft d) * (half_power n' / 2) = ((rgt d - lft d) * (half_power (S n')))).
   rewrite hp. reflexivity.
-  assert (Hass: (rgt d - lft d) * half_power n' / 2 = (rgt d - lft d) * (half_power n' / 2)). apply triv_associative.
+  assert (Hass: (rgt d - lft d) * half_power n' / 2 = (rgt d - lft d) * (half_power n' / 2)). field.
   rewrite Hass. 
   rewrite Hhp. reflexivity.
 Qed.  
