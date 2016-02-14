@@ -165,6 +165,9 @@ Fixpoint sequence (f: R -> R) (d: BisectData) (n: nat) : BisectData :=
 Definition lfts (u: nat -> BisectData)  (n: nat) : R :=
   lft (u n).
 
+Definition rgts (u: nat -> BisectData) (n: nat) : R :=
+  rgt (u n).
+
 (* all the intervals at all steps are admissible *)
 
 Lemma allAdmissible: forall d f, (isAdmissible f d) -> forall n, isAdmissible f (sequence f d n).
@@ -261,10 +264,85 @@ Lemma rgt_fpos: forall f d, (isAdmissible f d) -> forall n, 0 <= f (rgt (sequenc
 Proof.
   intros. apply allAdmissible with (n:=n) in H. apply H.
 Qed.
+
+Definition half_power (n:nat) : R := /2^n.
+
+
+Lemma hp: forall n, half_power n / 2 = half_power (S n).
+Proof.
+  intros.
+  unfold half_power.
+  simpl. field_simplify. reflexivity.
+
+  apply pow_nonzero.
+  assert (2 = INR 2).
+  auto with real.
+  rewrite H. auto with real.
+
+  apply pow_nonzero.
+  assert (2 = INR 2).
+  auto with real.
+  rewrite H. auto with real.
+Qed.
+
+Lemma triv_associative: forall x y, x * y /2 = x * (y /2).
+Proof.
+  intros.
+  field_simplify.
+  reflexivity.
+Qed.
+
+Lemma width_half_power: forall f d,
+                          (isAdmissible f d)
+                          -> forall n, width (sequence f d n)  = width d * half_power n.
+Proof.
+  intros.
+  unfold width.
+  induction n as [|n'].
+  simpl.  assert (Hhp0: half_power 0 = 1). unfold half_power. auto with real. rewrite Hhp0. auto with real.
+  simpl. assert (Hadn: isAdmissible f (sequence f d n')). apply allAdmissible. apply H.
+  apply main in Hadn. destruct Hadn as [Hl [Hr [Hw Hd]]].  unfold width in Hw. rewrite IHn' in Hw. rewrite Hw.
+  assert (Hhp: (rgt d - lft d) * (half_power n' / 2) = ((rgt d - lft d) * (half_power (S n')))).
+  rewrite hp. reflexivity.
+  assert (Hass: (rgt d - lft d) * half_power n' / 2 = (rgt d - lft d) * (half_power n' / 2)). apply triv_associative.
+  rewrite Hass. 
+  rewrite Hhp. reflexivity.
+Qed.  
+               
+Lemma halv_power_cv_0 : Un_cv half_power 0.
+Admitted.
+
+Lemma both_cv: forall f d,
+                 (isAdmissible f d) ->
+                 exists l,
+                    Un_cv (lfts (sequence f d)) l
+                    /\
+                    Un_cv (rgts (sequence f d)) l.
+Admitted.
+
+(* the following should be part of some standard library,
+but I could not find it *)
+
+Lemma f_cont_le: forall f u l,
+                      (continuity_pt f l) ->
+                      (Un_cv u l) ->
+                      (forall n, f(u n) <= 0) ->
+                      f l <= 0.
+Admitted.
+
+(* probably need the >= version of the previous Lemma as well *)
+
+Theorem Final: forall f d,
+                   (isAdmissible f d) ->
+                   (continuity f) ->
+                   exists l,
+                     Un_cv (lfts (sequence f d)) l
+                     /\
+                     f(l) = 0.
+Admitted.
   
 (*
 Remains to be done: 
-  - The right part converges (using the Lemma half), and has the same limit l as the left sides
-  - Assume f continuous, and show that f(l) <= 0, f(l) >= 0, so f(l) = 0.
+  - Proof of the admitted results above
   - Extract the bisection algorithm to Haskell
 *)
