@@ -309,8 +309,22 @@ Proof.
   rewrite Hhp. reflexivity.
 Qed.  
                
-Lemma halv_power_cv_0 : Un_cv half_power 0.
+
+Lemma half_power_cv_0: forall x, Un_cv (fun n:nat => x * half_power n) 0.
 Admitted.
+
+Require Export Coq.Logic.FunctionalExtensionality.
+
+Lemma width_cv_0: forall f d, (isAdmissible f d) ->
+                         Un_cv (fun n => width (sequence f d n)) 0.
+Proof.
+  intros.
+  assert ((fun n:nat => width (sequence f d n)) = (fun n:nat => (width d) * half_power n)).
+  apply functional_extensionality.
+  intros.
+  rewrite width_half_power. reflexivity. apply H. rewrite H0. 
+  apply half_power_cv_0.
+Qed.
 
 Lemma both_cv: forall f d,
                  (isAdmissible f d) ->
@@ -318,7 +332,40 @@ Lemma both_cv: forall f d,
                     Un_cv (lfts (sequence f d)) l
                     /\
                     Un_cv (rgts (sequence f d)) l.
-Admitted.
+Proof.
+  intros.
+  pose (Hcv':= lfts_conv f d H).
+  destruct Hcv' as [lim Hcv].
+  exists lim.
+  split.
+  *
+  assumption.
+  *
+  unfold rgts.
+  assert (Hwidth: forall x, rgt x = lft x + width x).
+  intros.
+  unfold width. auto with real.
+  assert (Hw: forall n,  rgt (sequence f d n) = lft (sequence f d n) + width (sequence f d n)).
+  intros. apply Hwidth.
+  assert (Un_cv (fun n:nat => lft (sequence f d n) + width (sequence f d n)) lim).
+  pose (Hw0:= width_cv_0 f d H).
+  pose (Hcv_plus:= CV_plus (lfts (sequence f d)) (fun n => width (sequence f d n)) lim 0 Hcv Hw0).
+  assert (lim0: lim = lim + 0).
+  auto with real.
+  rewrite lim0.
+  apply Hcv_plus.
+  assert ((fun n : nat => rgt (sequence f d n)) = (fun n:nat => (lft (sequence f d n) + width (sequence f d n)))).
+  apply functional_extensionality.
+  intros.
+  apply Hw.
+  rewrite H1.
+  apply H0.
+Qed.
+
+  
+
+
+  
 
 (* the following should be part of some standard library,
 but I could not find it *)
@@ -330,7 +377,17 @@ Lemma f_cont_le: forall f u l,
                       f l <= 0.
 Admitted.
 
-(* probably need the >= version of the previous Lemma as well *)
+Lemma f_cont_ge: forall f u l,
+                      (continuity_pt f l) ->
+                      (Un_cv u l) ->
+                      (forall n, 0 <= f(u n)) ->
+                      0 <= f l.
+Admitted.
+
+
+Lemma le_eq: forall x:R, 0 <= x -> x <= 0 -> x = 0.
+Admitted.
+
 
 Theorem Final: forall f d,
                    (isAdmissible f d) ->
@@ -339,7 +396,32 @@ Theorem Final: forall f d,
                      Un_cv (lfts (sequence f d)) l
                      /\
                      f(l) = 0.
-Admitted.
+Proof.
+  intros.
+  pose (both_cv f d H).
+  destruct e as [lim [Hcvl Hcvr]].
+
+  exists lim.
+  split.
+  exact Hcvl.
+
+  assert (f lim <= 0).
+  apply f_cont_le with (u := lfts (sequence f d)). apply H0. apply Hcvl. apply lft_fneg. apply H.
+
+  assert (0 <= f lim).
+  apply f_cont_ge with (u := rgts (sequence f d)).
+  apply H0.
+  apply Hcvr.
+  apply rgt_fpos. apply H.
+  apply le_eq.
+  apply H2.
+  apply H1.
+Qed.
+  
+
+    
+
+
   
 (*
 Remains to be done: 
