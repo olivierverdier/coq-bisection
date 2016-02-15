@@ -330,8 +330,7 @@ Proof.
   assert (Un_cv (fun n:nat => lft (sequence f d n) + width (sequence f d n)) lim).
   pose (Hw0:= width_cv_0 f d H).
   pose (Hcv_plus:= CV_plus (lfts (sequence f d)) (fun n => width (sequence f d n)) lim 0 Hcv Hw0).
-  assert (lim0: lim = lim + 0). auto with real.
-  rewrite lim0.
+  rewrite Rplus_0_r in Hcv_plus.
   apply Hcv_plus.
   pose (Hext:=Un_cv_ext
                 (fun n:nat => (lft (sequence f d n) + width (sequence f d n)))
