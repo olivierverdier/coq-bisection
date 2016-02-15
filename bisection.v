@@ -350,7 +350,7 @@ Proof.
 Qed.
 
   
-(*
-Remains to be done: 
-  - Extract the bisection algorithm to Haskell
-*)
+(* Extract the bisection algorithm to Haskell *)
+
+Extraction Language Haskell.
+Extraction "bisect.hs" sequence.
