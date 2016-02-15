@@ -91,53 +91,32 @@ Theorem main : forall d f, (isAdmissible f d) ->
 Proof.
   intros.
   destruct d as [a b].
-  destruct H as [a_le_b Hf].
-  destruct Hf as [Hfa Hfb].
+  destruct H as [a_le_b [Hfa Hfb]].
   simpl.
   case (Rle_lt_dec (f (mid a b)) 0).
 
-  * (* f(c) <= 0 *)
-    intros fneg. simpl. split.
-  - (* a <= mid a b *)
-    apply mid_mid. apply a_le_b.
-  - (*b <= b /\ mid a b <= b /\ f (mid a b) <= 0 <= f b *)
+  *
+    intros fneg.
     split.
-        + (*b <= b *)
-          simpl.  apply Rle_refl.
-        + (* mid a b <= b /\ f (mid a b) <= 0 <= f b *)
-         split.
-         (* half *)
-         unfold mid. unfold width. simpl. field.
-         split.
-         (* mid a b <= b *)
-           apply mid_mid. apply a_le_b.
-           (* f (mid a b) <= 0 <= f b *)
-           split.
-           (* f (mid a b) <= 0 *)
-           apply fneg.
-           (* 0 <= f b *)
-           apply Hfb.
+    apply mid_mid. auto.
+    split.
+    auto with real.
+    split.
+    unfold mid, width. simpl. field.
+    unfold isAdmissible.
+    split; try apply mid_mid; auto.
 
   
-    * (* f(c) > 0 *) (* same as above*)
-           intros fpos.
+  * (* f(c) > 0 *) (* same as above*)
+    intros fpos.
     split.
-
-    simpl. apply Rle_refl.
-
+    auto with real.
     split.
-
-    simpl. apply mid_mid. apply a_le_b.
-
+    simpl. apply mid_mid. auto.
     split.
-
-    simpl. unfold mid. unfold width. simpl. field.
-
-    unfold isAdmissible. split.
-
-    apply mid_mid. apply a_le_b.
-    
-    split. apply Hfa. apply Rlt_le. apply fpos.
+    unfold mid, width. simpl. field.
+    unfold isAdmissible.
+    split; try apply mid_mid; auto with real.
 Qed.
 
 (* The left side is bounded by the previous right side
