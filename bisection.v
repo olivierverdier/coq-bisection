@@ -282,19 +282,14 @@ Proof.
   assumption.
   *
   unfold rgts.
-  assert (Hwidth: forall x, rgt x = lft x + width x). intros. unfold width. auto with real.
-  assert (Hw: forall n,  lft (sequence f d n) + width (sequence f d n) = rgt (sequence f d n)). intros. symmetry. apply Hwidth.
-  assert (Un_cv (fun n:nat => lft (sequence f d n) + width (sequence f d n)) lim).
-  pose (Hw0:= width_cv_0 f d H).
-  pose (Hcv_plus:= CV_plus (lfts (sequence f d)) (fun n => width (sequence f d n)) lim 0 Hcv Hw0).
-  rewrite Rplus_0_r in Hcv_plus.
-  apply Hcv_plus.
+  assert (Hw: forall n,  lft (sequence f d n) + width (sequence f d n) = rgt (sequence f d n)). unfold width. auto with real.
+  assert (Hcv': Un_cv (fun n:nat => lft (sequence f d n) + width (sequence f d n)) lim). pose (Hw0:= width_cv_0 f d H). pose (Hcv_plus:= CV_plus (lfts (sequence f d)) (fun n => width (sequence f d n)) lim 0 Hcv Hw0). rewrite Rplus_0_r in Hcv_plus. apply Hcv_plus.
   pose (Hext:=Un_cv_ext
                 (fun n:nat => (lft (sequence f d n) + width (sequence f d n)))
                 (rgts (sequence f d))
                 Hw
                 lim
-                H0
+                Hcv'
        ).
   apply Hext.
 Qed.
