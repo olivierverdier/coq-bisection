@@ -244,12 +244,11 @@ Proof.
   unfold width.
   induction n as [|n'].
   *
-  simpl.  assert (Hhp0: half_power 0 = 1). unfold half_power. auto with real. rewrite Hhp0. auto with real.
+  simpl. unfold half_power. field. 
   *
-    simpl.
     assert (Hadn: isAdmissible f (sequence f d n')). apply allAdmissible; auto.
     apply main in Hadn as [Hl [Hr [Hw Hd]]]. unfold width in Hw. 
-    rewrite IHn' in Hw. rewrite Hw.
+    rewrite IHn' in Hw. simpl. rewrite Hw.
   assert (Hhp: (rgt d - lft d) * (half_power n' / 2) = ((rgt d - lft d) * (half_power (S n')))). rewrite hp. reflexivity.
   assert (Hass: (rgt d - lft d) * half_power n' / 2 = (rgt d - lft d) * (half_power n' / 2)). field.
   congruence.
