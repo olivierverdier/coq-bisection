@@ -209,7 +209,7 @@ Qed.
 Lemma lfts_conv : forall f d, (isAdmissible f d) -> exists l : R, Un_cv (lfts (sequence f d)) l.
 Proof.
   intros.
-  apply Un_cv_crit. apply lfts_grow. apply H. apply lfts_bound. apply H.
+  apply Un_cv_crit. apply lfts_grow; auto.  apply lfts_bound; auto. 
 Qed.
 
 (* the value of f at the left sides is always nonpositive *)
