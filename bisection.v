@@ -61,7 +61,7 @@ Qed.
 
 Lemma mid_xx : forall a: R, mid a a = a.
 Proof.
-  intros. unfold mid. rewrite Rdiv_plus_distr; rewrite double_var; reflexivity.
+  intros. unfold mid. field. 
 Qed.
 
 Lemma mid_mid: forall a b: R, (a <= b) -> a <= mid a b <= b.
