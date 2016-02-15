@@ -241,17 +241,15 @@ Lemma width_half_power: forall f d,
                           -> forall n, width (sequence f d n)  = width d * half_power n.
 Proof.
   intros.
-  unfold width.
+  unfold width, half_power.
   induction n as [|n'].
   *
-  simpl. unfold half_power. field. 
+  simpl.  field. 
   *
-    assert (Hadn: isAdmissible f (sequence f d n')). apply allAdmissible; auto.
+    assert (Hadn: isAdmissible f (sequence f d n')). apply allAdmissible. auto.
     apply main in Hadn as [Hl [Hr [Hw Hd]]]. unfold width in Hw. 
     rewrite IHn' in Hw. simpl. rewrite Hw.
-  assert (Hhp: (rgt d - lft d) * (half_power n' / 2) = ((rgt d - lft d) * (half_power (S n')))). rewrite hp. reflexivity.
-  assert (Hass: (rgt d - lft d) * half_power n' / 2 = (rgt d - lft d) * (half_power n' / 2)). field.
-  congruence.
+    field. apply pow_nonzero. discrR.
 Qed.  
                
 
