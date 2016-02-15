@@ -181,11 +181,12 @@ Qed.
 
 (* common bound for the left sides *)
 
+Hint Resolve lft_rgt rgt_bound : H_bnd.
+
 Lemma lfts_bound': forall f d, (isAdmissible f d) -> forall n, lft (sequence f d n) <= rgt d.
 Proof.
   intros.
-  apply Rle_trans with (r2:= rgt (sequence f d n)).
-  apply lft_rgt. apply H. apply rgt_bound. apply H.
+  apply Rle_trans with (r2:= rgt (sequence f d n)); auto with H_bnd.
 Qed.
 
 
