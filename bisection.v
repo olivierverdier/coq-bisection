@@ -80,6 +80,10 @@ The proof is long but trivial. It is just a case analysis on whether or not f((a
 
  *)
 
+Ltac midmid := try apply mid_mid; auto.
+Ltac midmid' := try apply mid_mid; auto with real.
+
+
 Theorem main : forall d f, (isAdmissible f d) ->
                                 lft d <= lft (bisect f d)
                                 /\
@@ -95,28 +99,20 @@ Proof.
   simpl.
   case (Rle_lt_dec (f (mid a b)) 0).
 
-  *
-    intros fneg.
-    split.
-    apply mid_mid. auto.
-    split.
-    auto with real.
-    split.
-    unfold mid, width. simpl. field.
-    unfold isAdmissible.
-    split; try apply mid_mid; auto.
-
-  
-  * (* f(c) > 0 *) (* same as above*)
-    intros fpos.
-    split.
-    auto with real.
-    split.
-    simpl. apply mid_mid. auto.
-    split.
-    unfold mid, width. simpl. field.
-    unfold isAdmissible.
-    split; try apply mid_mid; auto with real.
+  * repeat split.
+    + midmid.
+    + unfold mid. simpl. auto with real.
+    + unfold mid, width. simpl. field.
+    + midmid.
+    + auto.
+    + auto.
+  * repeat split.
+    + midmid'.
+    + midmid.
+    + unfold width, mid. simpl. field.
+    + midmid.
+    + auto.
+    + auto with real.
 Qed.
 
 (* The left side is bounded by the previous right side
