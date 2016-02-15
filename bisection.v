@@ -351,8 +351,11 @@ Qed.
 Lemma const_cv: forall x, Un_cv (fun n => x) x.
 Proof.
   intros.
-  unfold Un_cv. intros. exists 0%nat. intros n Hn0. unfold R_dist.
-  assert (H0: x - x = 0). field. rewrite H0.  rewrite Rabs_R0.  assumption.
+  unfold Un_cv. intros.
+  exists 0%nat. intros n Hn0. unfold R_dist.
+  rewrite Rminus_diag_eq.
+  * rewrite Rabs_R0; exact H.
+  * reflexivity.
 Qed.
 
 Hint Resolve continuity_seq const_cv : cont_const.
