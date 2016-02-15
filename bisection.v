@@ -217,7 +217,7 @@ Qed.
 
 Lemma lft_rgt: forall f d, (isAdmissible f d) -> forall n, lft (sequence f d n) <= rgt (sequence f d n).
 Proof.
-  intros. apply allAdmissible with (n:=n) in H. apply H.
+  intros; ov.
 Qed.
 
 (* common bound for the left sides *)
@@ -257,12 +257,12 @@ Qed.
 
 Lemma lft_fneg: forall f d, (isAdmissible f d) -> forall n, f (lft (sequence f d n)) <= 0.
 Proof.
-  intros. apply allAdmissible with (n:=n) in H. apply H.
+  intros; ov.
 Qed. 
 
 Lemma rgt_fpos: forall f d, (isAdmissible f d) -> forall n, 0 <= f (rgt (sequence f d n)).
 Proof.
-  intros. apply allAdmissible with (n:=n) in H. apply H.
+  intros; ov.
 Qed.
 
 Definition half_power (n:nat) : R := /2^n.
@@ -273,11 +273,7 @@ Proof.
   intros.
   unfold half_power.
   simpl. field.
-
-  apply pow_nonzero.
-  assert (2 = INR 2).
-  auto with real.
-  rewrite H. auto with real.
+  apply pow_nonzero; discrR.
 Qed.
 
 
@@ -350,9 +346,8 @@ Qed.
   
 Lemma const_cv: forall x, Un_cv (fun n => x) x.
 Proof.
-  intros.
   unfold Un_cv. intros.
-  exists 0%nat. intros n Hn0. unfold R_dist.
+  exists 0%nat. intros _ _. unfold R_dist.
   rewrite Rminus_diag_eq.
   * rewrite Rabs_R0; exact H.
   * reflexivity.
@@ -395,21 +390,13 @@ Proof.
 
   exists lim.
   split; auto.
-
-  assert (Hle0: f lim <= 0).
-  apply f_cont_le with (u := lfts (sequence f d)); auto.
-  apply lft_fneg; auto.
-
-  assert (Hge0: 0 <= f lim).
-  apply f_cont_ge with (u := rgts (sequence f d)); auto.
-  apply rgt_fpos; auto.
-
-  apply Rle_antisym; auto.
-Qed.
+  apply Rle_antisym.
   
-
-    
-
+  * apply f_cont_le with (u := lfts (sequence f d)); auto.
+    apply lft_fneg; auto.
+  * apply f_cont_ge with (u := rgts (sequence f d)); auto.
+    apply rgt_fpos; auto.
+Qed.
 
   
 (*
