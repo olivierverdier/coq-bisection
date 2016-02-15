@@ -80,8 +80,6 @@ The proof is long but trivial. It is just a case analysis on whether or not f((a
 
  *)
 
-Ltac midmid := try apply mid_mid; auto.
-Ltac midmid' := try apply mid_mid; auto with real.
 
 
 Theorem main : forall d f, (isAdmissible f d) ->
@@ -99,10 +97,9 @@ Proof.
   simpl.
   case (Rle_lt_dec (f (mid a b)) 0).
 
-  * repeat split; midmid.
-    + unfold mid. simpl. auto with real.
+  * repeat split; try apply mid_mid; auto with real.
     + unfold mid, width. simpl. field.
-  * repeat split; midmid'.
+  * repeat split; try apply mid_mid; auto with real.
     + unfold width, mid. simpl. field.
 Qed.
 
