@@ -196,9 +196,9 @@ Proof.
   intros.
   unfold bound.
   exists (rgt d).
-  unfold is_upper_bound. unfold EUn. unfold lfts.
-  intros x HE.
-  destruct HE as [n HH]. rewrite HH. apply lfts_bound'. apply H.
+  unfold is_upper_bound, EUn, lfts.
+  intros x [n HH].
+  rewrite HH. apply lfts_bound'. apply H.
 Qed.
 
   
