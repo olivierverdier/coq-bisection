@@ -167,13 +167,9 @@ Lemma rgt_bound: forall f d, isAdmissible f d -> forall n, rgt (sequence f d n) 
 Proof.
   intros.
   induction n as [|n'].
-  *
-    simpl. apply Rle_refl.
-  *
-    simpl.    
-    assert (Hi: rgt  (bisect f (sequence f d n')) <= rgt  (sequence f d n')).
-    ov.
-    apply Rle_trans with (r2:= rgt  (sequence f d n')). apply Hi. apply IHn'.
+  * auto with real.
+  * assert (rgt  (bisect f (sequence f d n')) <= rgt  (sequence f d n')). ov.
+    apply Rle_trans with (r2:= rgt  (sequence f d n')); auto. 
 Qed.
 
 (* left sides are lower than right sides *)
