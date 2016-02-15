@@ -99,20 +99,11 @@ Proof.
   simpl.
   case (Rle_lt_dec (f (mid a b)) 0).
 
-  * repeat split.
-    + midmid.
+  * repeat split; midmid.
     + unfold mid. simpl. auto with real.
     + unfold mid, width. simpl. field.
-    + midmid.
-    + auto.
-    + auto.
-  * repeat split.
-    + midmid'.
-    + midmid.
+  * repeat split; midmid'.
     + unfold width, mid. simpl. field.
-    + midmid.
-    + auto.
-    + auto with real.
 Qed.
 
 (* The left side is bounded by the previous right side
