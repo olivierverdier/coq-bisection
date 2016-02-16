@@ -294,9 +294,8 @@ Lemma const_cv: forall x, Un_cv (fun n => x) x.
 Proof.
   unfold Un_cv. intros.
   exists 0%nat. intros _ _. unfold R_dist.
-  rewrite Rminus_diag_eq.
-  * rewrite Rabs_R0; exact H.
-  * reflexivity.
+  rewrite Rminus_diag_eq; auto.
+  rewrite Rabs_R0; auto.
 Qed.
 
 Hint Resolve continuity_seq const_cv : cont_const.
