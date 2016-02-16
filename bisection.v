@@ -50,7 +50,7 @@ Definition width (d: BisectData) : R := (rgt d) - (lft d).
   
 Lemma mid_mid': forall a b: R, (a <= b) -> mid a a <= mid a b <= mid b b.
 Proof.
-  intros a b a_le_b.
+  intros.
   split; apply Rmult_le_compat_r; auto with real.
 Qed.
 
@@ -93,9 +93,9 @@ Proof.
   case (Rle_lt_dec (f (mid a b)) 0).
 
   * repeat split; try apply mid_mid; auto with real.
-    + unfold mid, width. simpl. field.
+    unfold mid, width. simpl. field.
   * repeat split; try apply mid_mid; auto with real.
-    + unfold width, mid. simpl. field.
+    unfold width, mid. simpl. field.
 Qed.
 
 (* The left side is bounded by the previous right side
@@ -106,8 +106,7 @@ Ltac ov := try apply main; eassumption.
 Lemma lftBound: forall d f, (isAdmissible f d) -> lft (bisect f d) <= rgt d.
 Proof.
   intros.
-  apply main with (d:=d) (f:=f) in H.  
-  apply Rle_trans with (r2:=rgt(bisect f d)); apply H.
+  apply Rle_trans with (r2:=rgt(bisect f d)); apply main; assumption.
 Qed.
   
 
@@ -131,7 +130,7 @@ Definition rgts (u: nat -> BisectData) (n: nat) : R :=
 Lemma allAdmissible: forall d f, (isAdmissible f d) -> forall n, isAdmissible f (sequence f d n).
 Proof.
   intros.
-  induction n; try apply main; try apply H; auto.
+  induction n; try apply main; assumption.
 Qed.
 
 (* Not powerful enough yet; we want a tactic which does
@@ -159,10 +158,8 @@ Qed.
 Lemma rgt_bound: forall f d, isAdmissible f d -> forall n, rgt (sequence f d n) <= rgt d.
 Proof.
   intros.
-  induction n as [|n'].
-  * auto with real.
-  * assert (rgt  (bisect f (sequence f d n')) <= rgt  (sequence f d n')). ov.
-    apply Rle_trans with (r2:= rgt  (sequence f d n')); auto. 
+  induction n as [|n']; auto with real.
+  apply Rle_trans with (r2:= rgt  (sequence f d n')); try apply main; auto.
 Qed.
 
 (* left sides are lower than right sides *)
@@ -174,12 +171,10 @@ Qed.
 
 (* common bound for the left sides *)
 
-Hint Resolve lft_rgt rgt_bound : H_bnd.
-
 Lemma lfts_bound': forall f d, (isAdmissible f d) -> forall n, lft (sequence f d n) <= rgt d.
 Proof.
   intros.
-  apply Rle_trans with (r2:= rgt (sequence f d n)); auto with H_bnd.
+  apply Rle_trans with (r2:= rgt (sequence f d n)); auto using lft_rgt, rgt_bound.
 Qed.
 
 
@@ -192,7 +187,7 @@ Proof.
   exists (rgt d).
   unfold is_upper_bound, EUn, lfts.
   intros x [n HH].
-  rewrite HH. apply lfts_bound'. apply H.
+  rewrite HH. apply lfts_bound'. assumption.
 Qed.
 
   
@@ -203,9 +198,7 @@ Qed.
 Lemma lfts_conv : forall f d, (isAdmissible f d) -> exists l : R, Un_cv (lfts (sequence f d)) l.
 Proof.
   intros.
-  apply Un_cv_crit.
-  * apply lfts_grow. auto.
-  * apply lfts_bound. auto. 
+  apply Un_cv_crit; auto using lfts_grow, lfts_bound.
 Qed.
 
 (* the value of f at the left sides is always nonpositive *)
@@ -240,7 +233,7 @@ Proof.
   * simpl.  unfold half_power. field. 
   * rewrite <- hp. simpl.
     assert (Hw: width (bisect f (sequence f d n')) = width (sequence f d n') / 2).
-    + apply main. apply allAdmissible. auto.
+    + apply main. apply allAdmissible. assumption.
     + rewrite Hw. rewrite IHn'. field.
 Qed.  
                
@@ -290,7 +283,7 @@ Proof.
   unfold Un_cv. intros.
   exists 0%nat. intros _ _. unfold R_dist.
   rewrite Rminus_diag_eq; auto.
-  rewrite Rabs_R0; auto.
+  rewrite Rabs_R0. auto.
 Qed.
 
 Hint Resolve continuity_seq const_cv : cont_const.
