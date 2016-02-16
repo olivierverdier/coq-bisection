@@ -61,7 +61,7 @@ Qed.
 
 Lemma mid_mid: forall a b: R, (a <= b) -> a <= mid a b <= b.
 Proof.
-  intros a b H. apply mid_mid' in H; repeat rewrite mid_xx in H. exact H.
+  intros a b H. apply mid_mid' in H. repeat rewrite mid_xx in H. exact H.
 Qed.
    
 (* Main Theorem: properties of one step of bisection
@@ -71,7 +71,7 @@ The statement speaks for itself, but it means that
 - the width is divided by two
 - the new interval is also admissible
 
-The proof is long but trivial. It is just a case analysis on whether or not f((a+b)/2) is positive, and repetitive use of the mid_mid Lemma.
+The proof is trivial. It is just a case analysis on whether or not f((a+b)/2) is positive, and repetitive use of the mid_mid Lemma.
 
  *)
 
@@ -131,9 +131,7 @@ Definition rgts (u: nat -> BisectData) (n: nat) : R :=
 Lemma allAdmissible: forall d f, (isAdmissible f d) -> forall n, isAdmissible f (sequence f d n).
 Proof.
   intros.
-  induction n.
-  * apply H.
-  * ov.
+  induction n; try apply main; try apply H; auto.
 Qed.
 
 (* Not powerful enough yet; we want a tactic which does
@@ -205,7 +203,9 @@ Qed.
 Lemma lfts_conv : forall f d, (isAdmissible f d) -> exists l : R, Un_cv (lfts (sequence f d)) l.
 Proof.
   intros.
-  apply Un_cv_crit. apply lfts_grow; auto.  apply lfts_bound; auto. 
+  apply Un_cv_crit.
+  * apply lfts_grow. auto.
+  * apply lfts_bound. auto. 
 Qed.
 
 (* the value of f at the left sides is always nonpositive *)
@@ -228,9 +228,8 @@ Proof.
   intros.
   unfold half_power.
   simpl. field.
-  apply pow_nonzero; discrR.
+  apply pow_nonzero. discrR.
 Qed.
-
 
 Lemma width_half_power: forall f d,
                           (isAdmissible f d)
