@@ -251,10 +251,9 @@ Lemma width_cv_0: forall f d, (isAdmissible f d) ->
                          Un_cv (fun n => width (sequence f d n)) 0.
 Proof.
   intros.
-  assert (Hwh: forall n, (width d) * half_power n = width (sequence f d n)). symmetry. apply width_half_power. apply H.
-  pose (Hp0:= cv_pow_half (width d)).
-  pose (ext:= Un_cv_ext (fun n => (width d) * half_power n) (fun n => width (sequence f d n)) Hwh 0 Hp0).
-  assumption.
+  refine (Un_cv_ext (fun n => (width d) * half_power n) (fun n => width (sequence f d n)) _ 0 _).
+  * symmetry. apply width_half_power. auto.
+  * apply cv_pow_half.
 Qed.
 
 Lemma both_cv: forall f d,
