@@ -236,15 +236,12 @@ Lemma width_half_power: forall f d,
                           -> forall n, width (sequence f d n)  = width d * half_power n.
 Proof.
   intros.
-  unfold width, half_power.
   induction n as [|n'].
-  *
-  simpl.  field. 
-  *
-    assert (Hadn: isAdmissible f (sequence f d n')). apply allAdmissible. auto.
-    apply main in Hadn as [Hl [Hr [Hw Hd]]]. unfold width in Hw. 
-    rewrite IHn' in Hw. simpl. rewrite Hw.
-    field. apply pow_nonzero. discrR.
+  * simpl.  unfold half_power. field. 
+  * rewrite <- hp. simpl.
+    assert (Hw: width (bisect f (sequence f d n')) = width (sequence f d n') / 2).
+    + apply main. apply allAdmissible. auto.
+    + rewrite Hw. rewrite IHn'. field.
 Qed.  
                
 
