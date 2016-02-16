@@ -260,21 +260,18 @@ Proof.
   pose (Hcv':= lfts_conv f d H).
   destruct Hcv' as [lim Hcv].
   exists lim.
-  split.
-  *
-  assumption.
-  *
-  unfold rgts.
-  assert (Hw: forall n,  lft (sequence f d n) + width (sequence f d n) = rgt (sequence f d n)). unfold width. auto with real.
-  assert (Hcv': Un_cv (fun n:nat => lft (sequence f d n) + width (sequence f d n)) lim). pose (Hw0:= width_cv_0 f d H). pose (Hcv_plus:= CV_plus (lfts (sequence f d)) (fun n => width (sequence f d n)) lim 0 Hcv Hw0). rewrite Rplus_0_r in Hcv_plus. apply Hcv_plus.
-  pose (Hext:=Un_cv_ext
+  split; auto.
+  refine (Un_cv_ext
                 (fun n:nat => (lft (sequence f d n) + width (sequence f d n)))
                 (rgts (sequence f d))
-                Hw
+                _
                 lim
-                Hcv'
-       ).
-  apply Hext.
+                _).
+  *
+    unfold width, rgts. auto with real.
+  *
+    assert (H0: lim = lim + 0). field. rewrite H0. clear H0.
+    refine (CV_plus (lfts (sequence f d)) (fun n => width (sequence f d n)) lim 0 _ _); auto using width_cv_0.
 Qed.
 
   
