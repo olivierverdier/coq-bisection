@@ -47,16 +47,11 @@ Definition width (d: BisectData) : R := (rgt d) - (lft d).
 
 (* we need some preliminary results first *)
 
-Lemma compat_mid_le : forall a b c d : R, a + b <= c + d -> mid a b <= mid c d.
-Proof.
-  intros. 
-  unfold mid. apply Rmult_le_compat_r; auto with real.
-Qed.
   
 Lemma mid_mid': forall a b: R, (a <= b) -> mid a a <= mid a b <= mid b b.
 Proof.
   intros a b a_le_b.
-  split; apply compat_mid_le; auto with real.
+  split; apply Rmult_le_compat_r; auto with real.
 Qed.
 
 Lemma mid_xx : forall a: R, mid a a = a.
