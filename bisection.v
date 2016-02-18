@@ -172,9 +172,8 @@ Qed.
 Lemma lfts_bound : forall f d, (isAdmissible f d) -> bound (EUn (lfts (sequence f d))).
 Proof.
   intros.
-  unfold bound.
+  unfold bound,is_upper_bound, EUn, lfts.
   exists (rgt d).
-  unfold is_upper_bound, EUn, lfts.
   intros x [n HH].
   rewrite HH. apply lfts_bound'. assumption.
 Qed.
