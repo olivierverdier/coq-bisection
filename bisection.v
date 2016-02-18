@@ -129,13 +129,7 @@ Proof.
   induction n; try apply main; assumption.
 Qed.
 
-(* Not powerful enough yet; we want a tactic which does
-      apply main; apply allAdmissible?
-*)
-Hint Resolve allAdmissible.
-Hint Resolve main.
 
-Print Hint *.
 (* Change Ltac ov to apply main. apply allAdmissible? Or use match goal...? *)
 Ltac ov ::= try apply main; try apply allAdmissible; eassumption.
 
@@ -143,10 +137,9 @@ Ltac ov ::= try apply main; try apply allAdmissible; eassumption.
 
 Lemma lfts_grow : forall d f, (isAdmissible f d) -> Un_growing (lfts (sequence f d)).
 Proof.
-  intros.
-  unfold Un_growing.
-  intros.
-  unfold lfts. ov.
+  unfold Un_growing, lfts.
+  intros. 
+  apply main. auto using allAdmissible.
 Qed.
 
 (* the right sides have a common bound *)
@@ -155,14 +148,14 @@ Lemma rgt_bound: forall f d, isAdmissible f d -> forall n, rgt (sequence f d n) 
 Proof.
   intros.
   induction n as [|n']; auto with real.
-  apply Rle_trans with (r2:= rgt  (sequence f d n')); try apply main; auto.
+  apply Rle_trans with (r2:= rgt  (sequence f d n')); try apply main; auto using allAdmissible.
 Qed.
 
 (* left sides are lower than right sides *)
 
 Lemma lft_rgt: forall f d, (isAdmissible f d) -> forall n, lft (sequence f d n) <= rgt (sequence f d n).
 Proof.
-  intros; ov.
+  intros. apply allAdmissible. assumption.
 Qed.
 
 (* common bound for the left sides *)
@@ -201,12 +194,12 @@ Qed.
 
 Lemma lft_fneg: forall f d, (isAdmissible f d) -> forall n, f (lft (sequence f d n)) <= 0.
 Proof.
-  intros; ov.
+  intros. apply allAdmissible. assumption.
 Qed. 
 
 Lemma rgt_fpos: forall f d, (isAdmissible f d) -> forall n, 0 <= f (rgt (sequence f d n)).
 Proof.
-  intros; ov.
+  intros. apply allAdmissible. assumption.
 Qed.
 
 Definition half_power (n:nat) : R := /2^n.
