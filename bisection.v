@@ -89,13 +89,9 @@ Proof.
   intros.
   destruct d as [a b].
   destruct H as [a_le_b [Hfa Hfb]].
+  apply mid_mid in a_le_b.
   simpl.
-  case (Rle_lt_dec (f (mid a b)) 0).
-
-  * repeat split; try apply mid_mid; auto with real.
-    unfold mid, width. simpl. field.
-  * repeat split; try apply mid_mid; auto with real.
-    unfold width, mid. simpl. field.
+  case (Rle_lt_dec (f (mid a b)) 0); repeat split; intuition; unfold mid, width; simpl; try field; auto with real.
 Qed.
 
 (* The left side is bounded by the previous right side
