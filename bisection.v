@@ -125,7 +125,7 @@ Definition rgts (u: nat -> BisectData) (n: nat) : R :=
 
 Lemma allAdmissible: forall d f, (isAdmissible f d) -> forall n, isAdmissible f (sequence f d n).
 Proof.
-  intros.
+  intros d f H n.
   induction n; try apply main; assumption.
 Qed.
 
