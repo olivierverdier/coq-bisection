@@ -61,7 +61,7 @@ Qed.
 
 Lemma mid_mid: forall a b: R, (a <= b) -> a <= mid a b <= b.
 Proof.
-  intros a b H. apply mid_mid' in H. repeat rewrite mid_xx in H. exact H.
+  intros ? ? H. apply mid_mid' in H. repeat rewrite mid_xx in H. assumption.
 Qed.
    
 (* Main Theorem: properties of one step of bisection
@@ -86,11 +86,10 @@ Theorem main : forall d f, (isAdmissible f d) ->
                                 /\
                                 isAdmissible f (bisect f d).
 Proof.
-  intros.
-  destruct d as [a b].
-  destruct H as [a_le_b [Hfa Hfb]].
+  intros [a b] f [a_le_b ?].
   apply mid_mid in a_le_b.
   simpl.
+  simpl in a_le_b. destruct a_le_b.
   case (Rle_lt_dec (f (mid a b)) 0); repeat split; intuition; unfold mid, width; simpl; try field; auto with real.
 Qed.
 
@@ -101,7 +100,7 @@ Ltac ov := try apply main; eassumption.
 
 Lemma lftBound: forall d f, (isAdmissible f d) -> lft (bisect f d) <= rgt d.
 Proof.
-  intros.
+  intros d f ?.
   apply Rle_trans with (r2:=rgt(bisect f d)); apply main; assumption.
 Qed.
   
@@ -125,7 +124,7 @@ Definition rgts (u: nat -> BisectData) (n: nat) : R :=
 
 Lemma allAdmissible: forall d f, (isAdmissible f d) -> forall n, isAdmissible f (sequence f d n).
 Proof.
-  intros d f H n.
+  intros ? ? ? n.
   induction n; try apply main; assumption.
 Qed.
 
@@ -146,7 +145,7 @@ Qed.
 
 Lemma rgt_bound: forall f d, isAdmissible f d -> forall n, rgt (sequence f d n) <= rgt d.
 Proof.
-  intros.
+  intros ? ? ? n.
   induction n as [|n']; auto with real.
   apply Rle_trans with (r2:= rgt  (sequence f d n')); try apply main; auto using allAdmissible.
 Qed.
@@ -162,7 +161,7 @@ Qed.
 
 Lemma lfts_bound': forall f d, (isAdmissible f d) -> forall n, lft (sequence f d n) <= rgt d.
 Proof.
-  intros.
+  intros f d ? n.
   apply Rle_trans with (r2:= rgt (sequence f d n)); auto using lft_rgt, rgt_bound.
 Qed.
 
@@ -171,10 +170,10 @@ Qed.
 
 Lemma lfts_bound : forall f d, (isAdmissible f d) -> bound (EUn (lfts (sequence f d))).
 Proof.
-  intros.
+  intros ? d ?.
   unfold bound,is_upper_bound, EUn, lfts.
   exists (rgt d).
-  intros x [n HH].
+  intros ? [? HH].
   rewrite HH. apply lfts_bound'. assumption.
 Qed.
 
@@ -216,8 +215,8 @@ Lemma width_half_power: forall f d,
                           (isAdmissible f d)
                           -> forall n, width (sequence f d n)  = width d * half_power n.
 Proof.
-  intros.
-  induction n as [|n'].
+  intros f d ? n.
+  induction n as [|n' IHn'].
   * simpl.  unfold half_power. field. 
   * rewrite <- hp. simpl.
     assert (Hw: width (bisect f (sequence f d n')) = width (sequence f d n') / 2).
@@ -231,9 +230,9 @@ Qed.
 Lemma width_cv_0: forall f d, (isAdmissible f d) ->
                          Un_cv (fun n => width (sequence f d n)) 0.
 Proof.
-  intros.
+  intros f d ?.
   refine (Un_cv_ext (fun n => (width d) * half_power n) (fun n => width (sequence f d n)) _ 0 _).
-  * symmetry. apply width_half_power. auto.
+  * symmetry. apply width_half_power. trivial.
   * apply cv_pow_half.
 Qed.
 
@@ -279,7 +278,7 @@ Lemma f_cont_le: forall f u l,
                       (forall n, f(u n) <= 0) ->
                       f l <= 0.
 Proof.
-  intros f u l Hcont Hcv Hle.
+  intros f u ? ? ? ?.
   apply Rle_cv_lim with (fun n => f (u n)) (fun n => 0); auto with cont_const.
 Qed.
   
@@ -290,7 +289,7 @@ Lemma f_cont_ge: forall f u l,
                       (forall n, 0 <= f(u n)) ->
                       0 <= f l.
 Proof.
-  intros f u l Hcont Hcv Hle.
+  intros f u ? ? ? ?.
   apply Rle_cv_lim with (fun n => 0) (fun n => f (u n)); auto with cont_const.
 Qed.
 
