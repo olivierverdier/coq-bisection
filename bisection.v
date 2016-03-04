@@ -182,10 +182,33 @@ Qed.
 (* the left sides converge, because it is an increasing, bounded sequence *)
 
 
-Lemma lfts_conv : forall f d, (isAdmissible f d) -> exists l : R, Un_cv (lfts (sequence f d)) l.
+Lemma const_cv: forall x, Un_cv (fun n => x) x.
 Proof.
-  intros.
+  unfold Un_cv. intros.
+  exists 0%nat. intros _ _. unfold R_dist.
+  rewrite Rminus_diag_eq; [|trivial].
+  rewrite Rabs_R0. trivial.
+Qed.
+
+
+Lemma lfts_conv : forall f d, (isAdmissible f d)
+                         -> exists l : R, Un_cv (lfts (sequence f d)) l
+                                    /\
+                                    lft d <= l <= rgt d.
+Proof.
+  intros f d H.
+  assert (H0: exists l : R, Un_cv (lfts (sequence f d)) l).
   apply Un_cv_crit; auto using lfts_grow, lfts_bound.
+  destruct H0 as [l Hcv].
+  exists l.
+  split; trivial.
+  split.
+  -
+  replace d with (sequence f d 0); [|trivial].
+  apply (growing_ineq (lfts (sequence f d)) l (lfts_grow d f H) Hcv 0).
+  -
+  apply Rle_cv_lim with (Un:=(lfts(sequence f d))) (Vn:=(fun k => rgt d)); trivial.
+  apply lfts_bound'. assumption. apply const_cv.
 Qed.
 
 (* the value of f at the left sides is always nonpositive *)
@@ -241,34 +264,27 @@ Lemma both_cv: forall f d,
                  exists l,
                     Un_cv (lfts (sequence f d)) l
                     /\
-                    Un_cv (rgts (sequence f d)) l.
+                    Un_cv (rgts (sequence f d)) l
+                    /\
+                    lft d <= l <= rgt d.
 Proof.
-  intros.
-  pose (Hcv':= lfts_conv f d H).
-  destruct Hcv' as [lim Hcv].
+  intros f d H.
+  destruct (lfts_conv f d H) as [lim [Hcv [Hlel Hler]]].
   exists lim.
-  split; auto.
+  repeat split; trivial.
+  Check Un_cv_ext.
   refine (Un_cv_ext
                 (fun n:nat => (lft (sequence f d n) + width (sequence f d n)))
                 (rgts (sequence f d))
                 _
                 lim
                 _).
-  *
-    unfold width, rgts. auto with real.
-  *
-    assert (H0: lim = lim + 0). field. rewrite H0. clear H0.
-    refine (CV_plus (lfts (sequence f d)) (fun n => width (sequence f d n)) lim 0 _ _); auto using width_cv_0.
+  * unfold width, rgts. auto with real.
+  * replace lim with (lim+0); [ | auto with real].
+    refine (CV_plus (lfts (sequence f d)) (fun n => width (sequence f d n)) lim 0 _ _). auto using width_cv_0.
 Qed.
 
   
-Lemma const_cv: forall x, Un_cv (fun n => x) x.
-Proof.
-  unfold Un_cv. intros.
-  exists 0%nat. intros _ _. unfold R_dist.
-  rewrite Rminus_diag_eq; auto.
-  rewrite Rabs_R0. auto.
-Qed.
 
 Hint Resolve continuity_seq const_cv : cont_const.
 
@@ -300,19 +316,23 @@ Theorem Final: forall f d,
                    exists l,
                      Un_cv (lfts (sequence f d)) l
                      /\
+                     lft d <= l <= rgt d
+                     /\
                      f(l) = 0.
 Proof.
-  intros f d H Hcont.
-  destruct (both_cv f d H) as [lim [Hcvl Hcvr]].
+  intros f d H ?.
+  destruct (both_cv f d H) as [lim [Hcvl [Hcvr [Hlel Hler]]]].
 
   exists lim.
-  split; auto.
-  apply Rle_antisym.
+
+  repeat split; trivial.
+
+  apply Rle_antisym; trivial.
   
-  * apply f_cont_le with (u := lfts (sequence f d)); auto.
-    apply lft_fneg; auto.
-  * apply f_cont_ge with (u := rgts (sequence f d)); auto.
-    apply rgt_fpos; auto.
+  - apply f_cont_le with (u := lfts (sequence f d)); trivial.
+    apply lft_fneg; trivial.
+  - apply f_cont_ge with (u := rgts (sequence f d)); trivial.
+    apply rgt_fpos; trivial.
 Qed.
 
   
