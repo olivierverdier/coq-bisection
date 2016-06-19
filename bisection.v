@@ -281,7 +281,7 @@ Proof.
                 _).
   * unfold width, rgts. auto with real.
   * replace lim with (lim+0); [ | auto with real].
-    refine (CV_plus (lfts (sequence f d)) (fun n => width (sequence f d n)) lim 0 _ _). auto using width_cv_0.
+    refine (CV_plus (lfts (sequence f d)) (fun n => width (sequence f d n)) lim 0 _ _); auto using width_cv_0.
 Qed.
 
   
